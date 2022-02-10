@@ -17,9 +17,9 @@
     "typings"
   ],
   "scripts": {
-    "dev": "NODE_ENV=development webpack serve --config webpack.config.site.ts",
+    "dev": "cross-env NODE_ENV=development webpack serve --config webpack.config.site.ts",
     "build": "rollup -c",
-    "build-site": "NODE_ENV=production webpack --config webpack.config.site.ts",
+    "build-site": "cross-env NODE_ENV=production webpack --config webpack.config.site.ts",
     "lint": "eslint . --ignore-pattern node_modules/ --ext .ts --ext .tsx",
     "lint-fix": "eslint . --ignore-pattern node_modules/ --ext .ts --ext .tsx --fix"
   },
@@ -42,6 +42,7 @@
     "babel-loader": "^8.2.1",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^7.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.14.0",
     "eslint-plugin-import": "^2.22.1",
     "fork-ts-checker-webpack-plugin": "^6.1.0",

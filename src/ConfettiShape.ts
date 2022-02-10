@@ -36,6 +36,7 @@ interface TConstructorArgs extends INormalizedAddConfettiConfig {
   initialPosition: IPosition,
   direction: TConfettiDirection,
   canvasWidth: number,
+  resources: HTMLImageElement[]
 }
 
 class ConfettiShape {
@@ -60,6 +61,7 @@ class ConfettiShape {
 
   private readonly color: string | null
   private readonly emoji: string | null
+  private readonly image: HTMLImageElement | null
 
   private radiusYUpdateDirection: 'up' | 'down'
 
@@ -76,6 +78,8 @@ class ConfettiShape {
       emojis,
       emojiSize,
       canvasWidth,
+      images,
+      resources,
     } = args
     const randomConfettiSpeed = generateRandomNumber(MIN_INITIAL_CONFETTI_SPEED, MAX_INITIAL_CONFETTI_SPEED, 3)
     const initialSpeed = randomConfettiSpeed * getWindowWidthCoefficient(canvasWidth)
@@ -87,8 +91,7 @@ class ConfettiShape {
 
     this.finalConfettiSpeedX = generateRandomNumber(MIN_FINAL_X_CONFETTI_SPEED, MAX_FINAL_X_CONFETTI_SPEED, 3)
 
-    this.rotationSpeed = emojis.length ? 0.01 : generateRandomNumber(MIN_INITIAL_ROTATION_SPEED, MAX_INITIAL_ROTATION_SPEED, 3) * getWindowWidthCoefficient(canvasWidth)
-
+    this.rotationSpeed = (emojis.length || resources.length) ? 0.01 : generateRandomNumber(MIN_INITIAL_ROTATION_SPEED, MAX_INITIAL_ROTATION_SPEED, 3) * getWindowWidthCoefficient(canvasWidth)
     this.dragForceCoefficient = generateRandomNumber(MIN_DRAG_FORCE_COEFFICIENT, MAX_DRAG_FORCE_COEFFICIENT, 6)
 
     this.radius = {
@@ -118,8 +121,9 @@ class ConfettiShape {
     this.currentPosition = { ...shiftedInitialPosition }
     this.initialPosition = { ...shiftedInitialPosition }
 
-    this.color = emojis.length ? null : generateRandomArrayElement(confettiColors)
+    this.color = (emojis.length || resources.length) ? null : generateRandomArrayElement(confettiColors)
     this.emoji = emojis.length ? generateRandomArrayElement(emojis) : null
+    this.image = resources.length ? generateRandomArrayElement(resources) : null
 
     this.createdAt = new Date().getTime()
     this.direction = direction
@@ -134,6 +138,7 @@ class ConfettiShape {
       rotationAngle,
       emojiRotationAngle,
       emojiSize,
+      image,
     } = this
     const dpr = window.devicePixelRatio
 
@@ -147,6 +152,12 @@ class ConfettiShape {
         rotationAngle, 0, 2 * Math.PI,
       )
       canvasContext.fill()
+    } else if (image) {
+      canvasContext.save()
+      canvasContext.translate(dpr * currentPosition.x, dpr * currentPosition.y)
+      canvasContext.rotate(emojiRotationAngle)
+      canvasContext.drawImage(image, -image.width/2, -image.height/2, image.width, image.height)
+      canvasContext.restore()
     } else if (emoji) {
       canvasContext.font = `${emojiSize}px serif`
 
@@ -182,12 +193,12 @@ class ConfettiShape {
       + FREE_FALLING_OBJECT_ACCELERATION * (timeDeltaSinceCreation ** 2) / 2
     )
 
-    this.rotationSpeed -= this.emoji ? 0.0001 : ROTATION_SLOWDOWN_ACCELERATION * iterationTimeDelta
+    this.rotationSpeed -= (this.emoji || this.image) ? 0.0001 : ROTATION_SLOWDOWN_ACCELERATION * iterationTimeDelta
 
     if (this.rotationSpeed < 0) this.rotationSpeed = 0
 
     // no need to update rotation radius for emoji
-    if (this.emoji) {
+    if (this.emoji || this.image) {
       this.emojiRotationAngle += (this.rotationSpeed * iterationTimeDelta) % (2 * Math.PI)
 
       return

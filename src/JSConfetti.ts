@@ -127,6 +127,30 @@ class JSConfetti {
     requestAnimationFrame(this.loop)
   }
 
+  private _load(url: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => {
+        resolve(img)
+      }
+      img.onerror = (e) => {
+        reject(e)
+      }
+      img.src = url
+      if (img.complete) {
+        img.onload = null
+        resolve(img)
+      }
+    })
+  }
+  private _loadImages(images: string[]): Promise<HTMLImageElement[]> {
+    if (images.length === 0) return Promise.resolve([])
+    const promises = images.map(src => {
+      return this._load(src)
+    })
+    return Promise.all(promises)
+  }
+
   public addConfetti(confettiConfig: IAddConfettiConfig = {}): Promise<void> {
     const {
       confettiRadius,
@@ -134,6 +158,7 @@ class JSConfetti {
       confettiColors,
       emojis,
       emojiSize,
+      images,
     } = normalizeConfettiConfig(confettiConfig)
 
     // Use the bounding rect rather tahn the canvas width / height, because
@@ -158,36 +183,37 @@ class JSConfetti {
 
     const confettiGroup = new ConfettiBatch(this.canvasContext)
 
-    for (let i = 0; i < confettiNumber / 2; i++) {
-      const confettiOnTheRight = new ConfettiShape({
-        initialPosition: leftConfettiPosition,
-        direction: 'right',
-        confettiRadius,
-        confettiColors,
-        confettiNumber,
-        emojis,
-        emojiSize,
-        canvasWidth,
-      })
-
-      const confettiOnTheLeft = new ConfettiShape({
-        initialPosition: rightConfettiPosition,
-        direction: 'left',
-        confettiRadius,
-        confettiColors,
-        confettiNumber,
-        emojis,
-        emojiSize,
-        canvasWidth,
-      })
-
-      confettiGroup.addShapes(confettiOnTheRight, confettiOnTheLeft)
-    }
-
-    this.activeConfettiBatches.push(confettiGroup)
-
-    this.queueAnimationFrameIfNeeded()
-
+    this._loadImages(images).then((resources) => {
+      for (let i = 0; i < confettiNumber / 2; i++) {
+        const confettiOnTheRight = new ConfettiShape({
+          initialPosition: leftConfettiPosition,
+          direction: 'right',
+          confettiRadius,
+          confettiColors,
+          confettiNumber,
+          emojis,
+          emojiSize,
+          canvasWidth,
+          images,
+          resources
+        })
+        const confettiOnTheLeft = new ConfettiShape({
+          initialPosition: rightConfettiPosition,
+          direction: 'left',
+          confettiRadius,
+          confettiColors,
+          confettiNumber,
+          emojis,
+          emojiSize,
+          canvasWidth,
+          images,
+          resources
+        })
+        confettiGroup.addShapes(confettiOnTheRight, confettiOnTheLeft)
+      }
+      this.activeConfettiBatches.push(confettiGroup)
+      this.queueAnimationFrameIfNeeded()
+    })
     return confettiGroup.getBatchCompletePromise()
   }
 }
