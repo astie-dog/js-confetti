@@ -8,10 +8,11 @@ import { IAddConfettiConfig } from '../src/types'
 
 const CONFETTI_ARGS: IAddConfettiConfig[] = [
   {
-    images: ['./icon.png']
+    images: ['./icon.png'],
+    imageScale: 0.1,
   },
-  { confettiRadius: 12, confettiNumber: 100 },
-  { emojis: ['🌈', '⚡️', '💥', '✨', '💫', '🌸'] },
+  // { confettiRadius: 12, confettiNumber: 100 },
+  // { emojis: ['🌈', '⚡️', '💥', '✨', '💫', '🌸'] },
   // { emojis: ['⚡️', '💥', '✨', '💫'] },
   // { emojis: ['🦄'], confettiRadius: 100, confettiNumber: 30 },
   // {

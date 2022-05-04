@@ -17,13 +17,14 @@ function normalizeConfettiConfig(confettiConfig: IAddConfettiConfig): INormalize
     emojis = confettiConfig.emojies || [],
     emojiSize = INITIAL_EMOJI_SIZE,
     images = [],
+    imageScale = 1
   } = confettiConfig
 
   // deprecate wrong plural forms, used in early releases
   if (confettiConfig.emojies) console.error(`emojies argument is deprecated, please use emojis instead`)
   if (confettiConfig.confettiesNumber) console.error(`confettiesNumber argument is deprecated, please use confettiNumber instead`)
 
-  return { confettiRadius, confettiNumber, confettiColors, emojis, emojiSize, images }
+  return { confettiRadius, confettiNumber, confettiColors, emojis, emojiSize, images, imageScale }
 }
 
 export { normalizeConfettiConfig }

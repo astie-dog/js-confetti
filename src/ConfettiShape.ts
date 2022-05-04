@@ -62,6 +62,7 @@ class ConfettiShape {
   private readonly color: string | null
   private readonly emoji: string | null
   private readonly image: HTMLImageElement | null
+  private readonly imageScale: number
 
   private radiusYUpdateDirection: 'up' | 'down'
 
@@ -79,6 +80,7 @@ class ConfettiShape {
       emojiSize,
       canvasWidth,
       images,
+      imageScale,
       resources,
     } = args
     const randomConfettiSpeed = generateRandomNumber(MIN_INITIAL_CONFETTI_SPEED, MAX_INITIAL_CONFETTI_SPEED, 3)
@@ -124,7 +126,7 @@ class ConfettiShape {
     this.color = (emojis.length || resources.length) ? null : generateRandomArrayElement(confettiColors)
     this.emoji = emojis.length ? generateRandomArrayElement(emojis) : null
     this.image = resources.length ? generateRandomArrayElement(resources) : null
-
+    this.imageScale = imageScale
     this.createdAt = new Date().getTime()
     this.direction = direction
   }
@@ -139,6 +141,7 @@ class ConfettiShape {
       emojiRotationAngle,
       emojiSize,
       image,
+      imageScale,
     } = this
     const dpr = window.devicePixelRatio
 
@@ -156,6 +159,7 @@ class ConfettiShape {
       canvasContext.save()
       canvasContext.translate(dpr * currentPosition.x, dpr * currentPosition.y)
       canvasContext.rotate(emojiRotationAngle)
+      canvasContext.scale(imageScale, imageScale)
       canvasContext.drawImage(image, -image.width/2, -image.height/2, image.width, image.height)
       canvasContext.restore()
     } else if (emoji) {

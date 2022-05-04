@@ -45,6 +45,7 @@ interface IAddConfettiConfig {
   confettiesNumber?: number,
 
   images?: string[]
+  imageScale?: number
 }
 
 
